@@ -1,0 +1,77 @@
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	// get the form data
+	$userID = $_POST["userID"];
+	$firstname = $_POST["firstN"];
+	$lastname = $_POST["lastN"];
+	$email = $_POST["emailID"];
+	$password = $_POST["passW"];
+	$gender = $_POST['gender'];
+$passwordAdmin = 'vijay@123##';
+
+	$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+	// insert the data into the database
+	$sql = "INSERT INTO users (user_id, name, surname, gender, email, password)
+					VALUES ('$userID', '$firstname', '$lastname', '$gender','$email', '$password')";
+
+	if (mysqli_query($connection, $sql)) {
+			echo "New record created successfully";
+	} else {
+			echo "Error: " . $sql . "<br>" . mysqli_error($connection);
+	}
+		header("location: home-page.php");
+
+}
+
+<?php
+// Start a new session
+session_start();
+
+// Check if the form was submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+  // Get the user_id and password from the form
+  $user_id = $_POST['user_id'];
+  $password = $_POST['password'];
+
+  // Connect to the database
+  $pdo = new PDO('mysql:host=localhost;dbname=fitness_guide', 'root', '');
+
+  // Prepare a SQL statement to select the user with the given user_id and password
+  $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ? AND password = ?');
+
+  // Execute the statement with the user_id and hashed password
+  $stmt->execute([$user_id, hash('sha256', $password)]);
+
+  // Check if a user was found
+  $user = $stmt->fetch();
+  if ($user) {
+    header('Location: home-page.php');
+    // Authentication successful, store user_id in session
+    $_SESSION['user_id'] = $user_id;
+    // Redirect to the user's home page
+    exit();
+  } else {
+    // Authentication failed, display an error message
+    $error = 'Invalid user_id or password';
+  }
+}
+
+
+/*	$sql = "SELECT * FROM daily_workout";
+	$result = mysqli_query($conn, $sql);
+	echo "<table>";
+	echo "<tr><th>Sr No</th><th>Body Part</th><th>Day</th><th>First Workout</th><th>Second Workout</th><th>Third Workout</th><th>Fourth Workout</th><th>Fifth Workout</th><th>Sixth Workout</th><th>Seventh Workout</th></tr>";
+	
+	while($row = mysqli_fetch_assoc($result)) {
+			echo "<tr>";
+			foreach($row as $value){
+					echo "<td>" . $value . "</td>";
+			}
+			echo "</tr>";
+	}
+	
+	echo "</table>";
+	*/
+
+?>
